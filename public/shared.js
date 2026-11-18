@@ -27,7 +27,11 @@
     const iconName =
       type === 'success' ? 'check-circle-2' : type === 'error' ? 'alert-octagon' : 'info';
     const iconColor =
-      type === 'success' ? '#c4f536' : type === 'error' ? '#ef4444' : '#38bdf8';
+      type === 'success'
+        ? 'var(--accent-lime-text)'
+        : type === 'error'
+        ? 'var(--status-danger)'
+        : 'var(--accent-sky)';
 
     item.innerHTML = `
       <i data-lucide="${iconName}" style="width:18px;height:18px;color:${iconColor};flex-shrink:0;"></i>
@@ -122,6 +126,46 @@
     return data;
   }
 
+  function getTheme() {
+    const attr = document.documentElement.getAttribute('data-theme');
+    if (attr === 'light' || attr === 'dark') return attr;
+    try {
+      const saved = localStorage.getItem('ga_theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+    } catch {
+      // Ignore storage failure
+    }
+    return 'dark';
+  }
+
+  function applyTheme(theme) {
+    const next = theme === 'light' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try {
+      localStorage.setItem('ga_theme', next);
+    } catch {
+      // Ignore storage failure
+    }
+    const btn = document.getElementById('themeToggleBtn');
+    if (btn) {
+      const isLight = next === 'light';
+      btn.setAttribute('aria-label', isLight ? 'Switch to dark theme' : 'Switch to light theme');
+      btn.setAttribute('title', isLight ? 'Switch to dark theme' : 'Switch to light theme');
+      btn.innerHTML = `<i data-lucide="${isLight ? 'moon' : 'sun'}" style="width:17px;height:17px;"></i>`;
+      renderIcons(btn);
+    }
+  }
+
+  function initThemeToggle() {
+    applyTheme(getTheme());
+    const btn = document.getElementById('themeToggleBtn');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      const next = getTheme() === 'light' ? 'dark' : 'light';
+      applyTheme(next);
+    });
+  }
+
   function initMobileMenu() {
     const btn = document.getElementById('mobileMenuBtn');
     const drawer = document.getElementById('mobileDrawer');
@@ -141,11 +185,14 @@
     renderStatusBadge,
     getAdminToken,
     setAdminToken,
+    getTheme,
+    applyTheme,
     apiJson,
     initMobileMenu
   };
 
   document.addEventListener('DOMContentLoaded', () => {
+    initThemeToggle();
     initMobileMenu();
     renderIcons();
   });

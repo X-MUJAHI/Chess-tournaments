@@ -9,6 +9,12 @@
       content="Live tournament standings, Buchholz tiebreaks, podium finishers, and round-by-round pairings."
     />
     <link rel="stylesheet" href="/styles.css" />
+    <script>
+      try {
+        var t = localStorage.getItem('ga_theme');
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <header class="topbar">
@@ -26,6 +32,15 @@
         </nav>
 
         <div class="topbar-actions">
+          <button
+            id="themeToggleBtn"
+            class="theme-toggle-btn"
+            type="button"
+            aria-label="Switch to light theme"
+            title="Switch to light theme"
+          >
+            <i data-lucide="sun" style="width:17px;height:17px;"></i>
+          </button>
           <a href="/registration" class="btn btn-primary btn-sm topbar-desktop-cta">
             <i data-lucide="user-plus" style="width:16px;height:16px;"></i>
             <span>Register Entry</span>
@@ -94,7 +109,7 @@
           style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px;"
         >
           <div style="display:flex;align-items:center;gap:10px;">
-            <i data-lucide="list-ordered" style="width:20px;height:20px;color:var(--accent-lime);"></i>
+            <i data-lucide="list-ordered" style="width:20px;height:20px;color:var(--accent-lime-text);"></i>
             <h2 class="card-title">Official Standings</h2>
           </div>
 

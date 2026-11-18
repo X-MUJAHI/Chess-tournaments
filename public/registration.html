@@ -9,6 +9,12 @@
       content="Register for active chess tournaments with username, peak Elo, platform handle, and event-specific arbiter fields."
     />
     <link rel="stylesheet" href="/styles.css" />
+    <script>
+      try {
+        var t = localStorage.getItem('ga_theme');
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <header class="topbar">
@@ -26,6 +32,15 @@
         </nav>
 
         <div class="topbar-actions">
+          <button
+            id="themeToggleBtn"
+            class="theme-toggle-btn"
+            type="button"
+            aria-label="Switch to light theme"
+            title="Switch to light theme"
+          >
+            <i data-lucide="sun" style="width:17px;height:17px;"></i>
+          </button>
           <a href="/result" class="btn btn-secondary btn-sm topbar-desktop-cta">
             <i data-lucide="trophy" style="width:16px;height:16px;"></i>
             <span>Live Standings</span>
@@ -89,7 +104,7 @@
 
           <section id="formCard" class="glass-panel-lime" style="padding:28px;">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
-              <i data-lucide="clipboard-check" style="width:22px;height:22px;color:var(--accent-lime);"></i>
+              <i data-lucide="clipboard-check" style="width:22px;height:22px;color:var(--accent-lime-text);"></i>
               <h2 class="card-title">Player Entry Form</h2>
             </div>
 
@@ -167,7 +182,7 @@
 
               <div
                 id="formErrorBanner"
-                style="display:none;padding:12px 14px;border:2px solid var(--status-danger);background:rgba(239,68,68,0.12);border-radius:6px;color:#fecaca;font-size:0.9rem;"
+                style="display:none;padding:12px 14px;border:2px solid var(--status-danger);background:rgba(239,68,68,0.12);border-radius:6px;color:var(--error-text);font-size:0.9rem;"
               ></div>
 
               <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:6px;">
@@ -182,7 +197,7 @@
             <!-- Confirmation Receipt -->
             <div id="receiptBox" style="display:none;margin-top:20px;padding:20px;" class="surface-inset">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;">
-                <div style="display:flex;align-items:center;gap:8px;color:var(--accent-lime);font-weight:700;">
+                <div style="display:flex;align-items:center;gap:8px;color:var(--accent-lime-text);font-weight:700;">
                   <i data-lucide="badge-check" style="width:20px;height:20px;"></i>
                   <span>Registration Recorded</span>
                 </div>
@@ -190,7 +205,7 @@
               </div>
               <div class="meta-line" style="margin-bottom:12px;">
                 <span>Confirmation Code:</span>
-                <strong id="receiptCode" class="num" style="color:var(--accent-lime);font-size:1.05rem;"></strong>
+                <strong id="receiptCode" class="num" style="color:var(--accent-lime-text);font-size:1.05rem;"></strong>
                 <button type="button" id="copyCodeBtn" class="btn btn-secondary btn-sm">
                   <i data-lucide="copy" style="width:14px;height:14px;"></i>
                   <span>Copy</span>
@@ -226,7 +241,7 @@
               style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;"
             >
               <div style="display:flex;align-items:center;gap:8px;">
-                <i data-lucide="users" style="width:18px;height:18px;color:var(--accent-lime);"></i>
+                <i data-lucide="users" style="width:18px;height:18px;color:var(--accent-lime-text);"></i>
                 <h2 class="card-title">Confirmed Roster</h2>
               </div>
               <span id="rosterCount" class="num muted" style="font-size:0.85rem;">0 players</span>

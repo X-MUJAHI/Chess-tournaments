@@ -503,7 +503,7 @@
               <strong>${escapeHtml(m.blackUsername || 'BYE')}</strong>
               ${m.pgnNote ? `<div class="subtle" style="font-size:0.76rem;">${escapeHtml(m.pgnNote)}</div>` : ''}
             </td>
-            <td class="num" style="font-weight:700;color:var(--accent-lime);">${escapeHtml(m.outcome)}</td>
+            <td class="num" style="font-weight:700;color:var(--accent-lime-text);">${escapeHtml(m.outcome)}</td>
             <td class="right">
               <div style="display:inline-flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;">
                 <button type="button" class="btn btn-secondary btn-sm" data-score="${escapeHtml(m.id)}:1-0">1-0</button>
@@ -559,7 +559,7 @@
           <tr>
             <td class="num">#${s.rank}</td>
             <td style="font-weight:600;">${escapeHtml(s.username)}</td>
-            <td class="right num" style="color:var(--accent-lime);font-weight:700;">${s.points}</td>
+            <td class="right num" style="color:var(--accent-lime-text);font-weight:700;">${s.points}</td>
             <td class="right num">${s.buchholz}</td>
           </tr>
         `
@@ -686,7 +686,7 @@
           (sp) => `
           <div class="surface-inset" style="padding:10px 12px;font-size:0.84rem;">
             <div style="display:flex;justify-content:space-between;gap:8px;">
-              <strong style="color:var(--accent-lime);">${escapeHtml(sp.winnerLabel)}</strong>
+              <strong style="color:var(--accent-lime-text);">${escapeHtml(sp.winnerLabel)}</strong>
               <span class="num muted">${formatDate(sp.spunAt)}</span>
             </div>
             <div class="subtle">${escapeHtml(sp.mode)} · ${sp.segmentCount} slices</div>
@@ -695,7 +695,7 @@
         )
         .join('');
     } catch (err) {
-      list.innerHTML = `<p style="color:#fca5a5;">${escapeHtml(err.message)}</p>`;
+      list.innerHTML = `<p style="color:var(--error-text);">${escapeHtml(err.message)}</p>`;
     }
   }
 

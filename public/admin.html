@@ -9,6 +9,12 @@
       content="Protected tournament administration console for creating dynamic registrations, managing rosters, publishing results, and private draws."
     />
     <link rel="stylesheet" href="/styles.css" />
+    <script>
+      try {
+        var t = localStorage.getItem('ga_theme');
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <header class="topbar">
@@ -26,6 +32,15 @@
         </nav>
 
         <div class="topbar-actions">
+          <button
+            id="themeToggleBtn"
+            class="theme-toggle-btn"
+            type="button"
+            aria-label="Switch to light theme"
+            title="Switch to light theme"
+          >
+            <i data-lucide="sun" style="width:17px;height:17px;"></i>
+          </button>
           <button id="adminLogoutBtn" type="button" class="btn btn-secondary btn-sm topbar-desktop-cta" style="display:none;">
             <i data-lucide="log-out" style="width:16px;height:16px;"></i>
             <span>Sign Out</span>
@@ -59,7 +74,7 @@
       <section id="adminLoginGate" style="max-width:480px;margin:32px auto;display:none;">
         <div class="glass-panel-lime" style="padding:32px;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-            <i data-lucide="shield-check" style="width:24px;height:24px;color:var(--accent-lime);"></i>
+            <i data-lucide="shield-check" style="width:24px;height:24px;color:var(--accent-lime-text);"></i>
             <h1 class="section-title" style="font-size:1.65rem;">Organizer Sign In</h1>
           </div>
           <p class="muted" style="margin:0 0 22px;font-size:0.92rem;">
@@ -90,13 +105,13 @@
             >
               Preview defaults active (set <span class="mono">ADMIN</span> and
               <span class="mono">PASSWORD</span> in Vercel for production): username
-              <strong class="mono" style="color:var(--accent-lime);">admin</strong> / password
-              <strong class="mono" style="color:var(--accent-lime);">chess2026</strong>
+              <strong class="mono" style="color:var(--accent-lime-text);">admin</strong> / password
+              <strong class="mono" style="color:var(--accent-lime-text);">chess2026</strong>
             </div>
 
             <div
               id="loginError"
-              style="display:none;padding:10px 12px;border:2px solid var(--status-danger);background:rgba(239,68,68,0.12);border-radius:6px;color:#fecaca;font-size:0.88rem;"
+              style="display:none;padding:10px 12px;border:2px solid var(--status-danger);background:rgba(239,68,68,0.12);border-radius:6px;color:var(--error-text);font-size:0.88rem;"
             ></div>
 
             <button id="loginSubmitBtn" type="submit" class="btn btn-primary" style="width:100%;">
@@ -517,10 +532,10 @@
               <div
                 id="wheelWinnerBanner"
                 class="surface-inset"
-                style="display:none;padding:16px 18px;border-color:var(--accent-lime);"
+                style="display:none;padding:16px 18px;border-color:var(--border-lime-panel);"
               >
                 <div class="meta-line" style="justify-content:space-between;">
-                  <span style="color:var(--accent-lime);font-weight:700;">Selected Result</span>
+                  <span style="color:var(--accent-lime-text);font-weight:700;">Selected Result</span>
                   <span id="wheelWinnerTime" class="num muted"></span>
                 </div>
                 <div id="wheelWinnerLabel" style="font-size:1.45rem;font-weight:800;margin-top:4px;"></div>

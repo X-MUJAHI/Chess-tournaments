@@ -80,7 +80,7 @@
 
               <div class="meta-line" style="justify-content:space-between;">
                 <span>Starts ${formatDate(t.startDate)}</span>
-                <span class="num" style="color:var(--accent-lime);font-weight:700;">${escapeHtml(t.prizePool)}</span>
+                <span class="num" style="color:var(--accent-lime-text);font-weight:700;">${escapeHtml(t.prizePool)}</span>
               </div>
 
               <div style="display:flex;flex-wrap:wrap;gap:10px;padding-top:4px;">
@@ -127,7 +127,7 @@
       const grid = document.getElementById('homeTournamentGrid');
       grid.innerHTML = `
         <div class="glass-panel" style="padding:28px;grid-column:1/-1;">
-          <p style="margin:0;color:#fca5a5;">Failed to load tournaments: ${escapeHtml(err.message)}</p>
+          <p style="margin:0;color:var(--error-text);">Failed to load tournaments: ${escapeHtml(err.message)}</p>
         </div>
       `;
     }

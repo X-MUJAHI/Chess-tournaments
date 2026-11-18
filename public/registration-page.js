@@ -375,7 +375,7 @@
       `;
       renderIcons(out);
     } catch (err) {
-      out.innerHTML = `<p style="margin:0;color:#fca5a5;">${escapeHtml(err.message)}</p>`;
+      out.innerHTML = `<p style="margin:0;color:var(--error-text);">${escapeHtml(err.message)}</p>`;
     }
   });
 

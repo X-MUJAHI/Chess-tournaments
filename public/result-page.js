@@ -16,13 +16,13 @@
     }
 
     const icons = ['crown', 'award', 'medal'];
-    const colors = ['#c4f536', '#38bdf8', '#f59e0b'];
+    const colors = ['var(--accent-lime-text)', 'var(--accent-sky)', 'var(--status-waitlist)'];
     const labels = ['1st Place', '2nd Place', '3rd Place'];
 
     grid.innerHTML = podium
       .map(
         (p, idx) => `
-        <div class="surface-inset podium-card" style="border-color:${idx === 0 ? 'var(--accent-lime)' : 'rgba(255,255,255,0.12)'};">
+        <div class="surface-inset podium-card" style="border-color:${idx === 0 ? 'var(--border-lime-panel)' : 'var(--border-inset)'};">
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <span class="podium-rank" style="color:${colors[idx]};">
               <i data-lucide="${icons[idx]}" style="width:18px;height:18px;"></i>
@@ -88,7 +88,7 @@
           <td class="right num">${r.peakElo}</td>
           <td class="right num">${r.wins} / ${r.draws} / ${r.losses}</td>
           <td class="right num">${r.buchholz}</td>
-          <td class="right num" style="font-weight:700;color:var(--accent-lime);">${r.points}</td>
+          <td class="right num" style="font-weight:700;color:var(--accent-lime-text);">${r.points}</td>
           <td class="right">
             <button type="button" class="btn btn-secondary btn-sm" data-player-card="${escapeHtml(r.username)}">
               <i data-lucide="file-text" style="width:14px;height:14px;"></i>
@@ -161,7 +161,7 @@
                     <td class="num">#${g.board || 1}</td>
                     <td style="font-weight:600;">${escapeHtml(g.whiteUsername)}</td>
                     <td style="font-weight:600;">${escapeHtml(g.blackUsername || 'BYE')}</td>
-                    <td class="num" style="font-weight:700;color:${g.outcome === 'PENDING' ? 'var(--text-muted)' : 'var(--accent-lime)'};">
+                    <td class="num" style="font-weight:700;color:${g.outcome === 'PENDING' ? 'var(--text-muted)' : 'var(--accent-lime-text)'};">
                       ${escapeHtml(g.outcome)}
                     </td>
                     <td class="muted">${escapeHtml(g.pgnNote || '-')}</td>
@@ -226,7 +226,7 @@
         }
       `;
     } catch (err) {
-      body.innerHTML = `<p style="color:#fca5a5;">${escapeHtml(err.message)}</p>`;
+      body.innerHTML = `<p style="color:var(--error-text);">${escapeHtml(err.message)}</p>`;
     }
   }
 
