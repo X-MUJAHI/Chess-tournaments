@@ -73,14 +73,10 @@
       <!-- Login Gate -->
       <section id="adminLoginGate" style="max-width:480px;margin:32px auto;display:none;">
         <div class="glass-panel-lime" style="padding:32px;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
             <i data-lucide="shield-check" style="width:24px;height:24px;color:var(--accent-lime-text);"></i>
             <h1 class="section-title" style="font-size:1.65rem;">Organizer Sign In</h1>
           </div>
-          <p class="muted" style="margin:0 0 22px;font-size:0.92rem;">
-            Authenticate using your configured <span class="mono">ADMIN</span> and
-            <span class="mono">PASSWORD</span> credentials.
-          </p>
 
           <form id="adminLoginForm" style="display:flex;flex-direction:column;gap:16px;">
             <div class="field-group">
@@ -150,6 +146,10 @@
             <button type="button" class="segmented-btn" data-admin-tab="wheel">
               <i data-lucide="disc-3" style="width:15px;height:15px;"></i>
               <span>Private Wheel</span>
+            </button>
+            <button type="button" class="segmented-btn" data-admin-tab="database">
+              <i data-lucide="database" style="width:15px;height:15px;"></i>
+              <span>Database</span>
             </button>
           </div>
         </div>
@@ -348,7 +348,6 @@
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;">
                   <div>
                     <h3 style="font-size:1rem;font-weight:700;">Custom Registration Form Builder</h3>
-                    <span class="field-help">Add unlimited event-specific inputs players fill on /registration</span>
                   </div>
                   <button type="button" id="addCustomFieldBtn" class="btn btn-secondary btn-sm">
                     <i data-lucide="plus" style="width:15px;height:15px;"></i>
@@ -514,9 +513,6 @@
               <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;">
                 <div>
                   <h2 class="card-title" style="font-size:1.35rem;">Admin Private Draw Wheel</h2>
-                  <p class="muted" style="margin:4px 0 0;font-size:0.88rem;">
-                    Restricted to authenticated organizers. Invisible to normal players and public routes.
-                  </p>
                 </div>
                 <button type="button" id="spinWheelBtn" class="btn btn-primary">
                   <i data-lucide="play" style="width:16px;height:16px;"></i>
@@ -602,19 +598,126 @@
             </aside>
           </div>
         </section>
+
+        <!-- TAB 5: DATABASE MANAGEMENT -->
+        <section id="tab-database" class="admin-tab-panel" style="display:none;">
+          <div style="display:flex;flex-direction:column;gap:24px;">
+            <div class="glass-panel" style="padding:24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <i data-lucide="database" style="width:22px;height:22px;color:var(--accent-lime-text);"></i>
+                <div>
+                  <h2 class="card-title">Database &amp; Backups</h2>
+                  <div id="dbTabStatusText" class="meta-line" style="margin-top:4px;">Checking persistence...</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span id="dbTabModeBadge"></span>
+                <button type="button" id="refreshDbBtn" class="btn btn-secondary btn-sm">
+                  <i data-lucide="refresh-cw" style="width:14px;height:14px;"></i>
+                  <span>Refresh Stats</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="kpi-strip" style="margin:0;">
+              <div class="glass-panel kpi-card">
+                <span class="kpi-label">Tournaments</span>
+                <span id="dbCountTournaments" class="kpi-value">0</span>
+              </div>
+              <div class="glass-panel kpi-card">
+                <span class="kpi-label">Registrations</span>
+                <span id="dbCountRegistrations" class="kpi-value">0</span>
+              </div>
+              <div class="glass-panel kpi-card">
+                <span class="kpi-label">Matches</span>
+                <span id="dbCountMatches" class="kpi-value">0</span>
+              </div>
+              <div class="glass-panel kpi-card">
+                <span class="kpi-label">Standings</span>
+                <span id="dbCountStandings" class="kpi-value">0</span>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <!-- Export & Restore -->
+              <div class="glass-panel-lime" style="padding:26px;display:flex;flex-direction:column;gap:18px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <i data-lucide="hard-drive-download" style="width:20px;height:20px;color:var(--accent-lime-text);"></i>
+                    <h3 class="card-title">JSON Snapshot Backup</h3>
+                  </div>
+                  <span id="dbCountWheel" class="num muted" style="font-size:0.84rem;">0 wheel logs</span>
+                </div>
+
+                <button type="button" id="exportDbBtn" class="btn btn-primary" style="width:100%;">
+                  <i data-lucide="download" style="width:16px;height:16px;"></i>
+                  <span>Export JSON Backup</span>
+                </button>
+
+                <div class="surface-inset" style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+                  <label for="importBackupFile" class="field-label">Restore from JSON Backup</label>
+                  <input
+                    id="importBackupFile"
+                    type="file"
+                    accept=".json,application/json"
+                    class="input"
+                    style="padding:8px 10px;"
+                  />
+                  <div id="importPreviewText" class="muted" style="font-size:0.84rem;display:none;"></div>
+                  <button type="button" id="restoreDbBtn" class="btn btn-secondary" disabled>
+                    <i data-lucide="upload" style="width:16px;height:16px;"></i>
+                    <span>Restore Snapshot</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Scoped Purge & Cleanup -->
+              <div class="glass-panel" style="padding:26px;display:flex;flex-direction:column;gap:16px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <i data-lucide="trash-2" style="width:20px;height:20px;color:var(--status-danger);"></i>
+                  <h3 class="card-title">Collection Maintenance</h3>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                  <button type="button" class="btn btn-secondary" style="justify-content:space-between;" data-purge-scope="demo">
+                    <span>Purge Demo Seed Data</span>
+                    <i data-lucide="sparkles" style="width:15px;height:15px;"></i>
+                  </button>
+                  <button type="button" class="btn btn-secondary" style="justify-content:space-between;" data-purge-scope="wheel">
+                    <span>Clear Private Wheel Logs</span>
+                    <i data-lucide="disc-3" style="width:15px;height:15px;"></i>
+                  </button>
+                  <button type="button" class="btn btn-secondary" style="justify-content:space-between;" data-purge-scope="matches">
+                    <span>Clear All Matches &amp; Scores</span>
+                    <i data-lucide="swords" style="width:15px;height:15px;"></i>
+                  </button>
+                  <button type="button" class="btn btn-secondary" style="justify-content:space-between;" data-purge-scope="registrations">
+                    <span>Clear Registrations &amp; Brackets</span>
+                    <i data-lucide="users" style="width:15px;height:15px;"></i>
+                  </button>
+                  <button type="button" class="btn btn-danger" style="justify-content:space-between;" data-purge-scope="all">
+                    <span>Wipe All Collections</span>
+                    <i data-lucide="alert-triangle" style="width:15px;height:15px;"></i>
+                  </button>
+                </div>
+
+                <div
+                  id="dbPurgeConfirmBox"
+                  class="surface-inset"
+                  style="display:none;padding:14px;border-color:var(--status-danger);background:rgba(239,68,68,0.1);"
+                >
+                  <div id="dbPurgeConfirmMsg" style="font-size:0.88rem;font-weight:600;color:var(--error-text);margin-bottom:10px;"></div>
+                  <div style="display:flex;gap:8px;justify-content:flex-end;">
+                    <button type="button" id="cancelPurgeBtn" class="btn btn-secondary btn-sm">Cancel</button>
+                    <button type="button" id="confirmPurgeBtn" class="btn btn-danger btn-sm">Confirm Purge</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </main>
-
-    <footer class="site-footer">
-      <div class="container footer-inner">
-        <span>Grandmaster Arena — Organizer Administration</span>
-        <div style="display:flex;gap:20px;">
-          <a href="/" class="nav-link">Overview</a>
-          <a href="/registration" class="nav-link">Registration</a>
-          <a href="/result" class="nav-link">Standings &amp; Results</a>
-        </div>
-      </div>
-    </footer>
 
     <script src="/vendor/lucide.min.js"></script>
     <script src="/shared.js"></script>

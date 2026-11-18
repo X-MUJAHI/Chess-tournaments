@@ -13,8 +13,18 @@
   ];
   let wheelAngle = 0;
   let isSpinning = false;
+  let pendingBackupSnapshot = null;
+  let pendingPurgeScope = null;
 
   const WHEEL_COLORS = ['#c4f536', '#38bdf8', '#f59e0b', '#22c55e', '#a855f7', '#fb7185', '#e2e8f0'];
+
+  const PURGE_MESSAGES = {
+    demo: 'Remove the 3 seeded demo tournaments, seeded players, and seeded matches?',
+    wheel: 'Delete all recorded admin private wheel draw logs?',
+    matches: 'Delete all match pairings and reset player scores to 0?',
+    registrations: 'Delete all player registrations, matches, and standings?',
+    all: 'Permanently wipe ALL tournaments, registrations, matches, standings, and wheel logs?'
+  };
 
   function toLocalInputValue(iso) {
     if (!iso) return '';
@@ -34,6 +44,8 @@
     if (tabName === 'wheel') {
       drawWheel();
       loadWheelHistory();
+    } else if (tabName === 'database') {
+      loadDatabaseSummary().catch((err) => toast(err.message, 'error'));
     }
   }
 
@@ -1116,6 +1128,188 @@
       if (/unauthorized/i.test(err.message)) {
         showLoginGate();
       }
+    }
+  });
+
+  // DATABASE MANAGEMENT
+  function applyDatabaseSummary(data) {
+    const counts = data.counts || {};
+    const status = data.dbStatus || {};
+    document.getElementById('dbCountTournaments').textContent = String(counts.tournaments || 0);
+    document.getElementById('dbCountRegistrations').textContent = String(counts.registrations || 0);
+    document.getElementById('dbCountMatches').textContent = String(counts.matches || 0);
+    document.getElementById('dbCountStandings').textContent = String(counts.standings || 0);
+    document.getElementById('dbCountWheel').textContent = `${counts.wheelSpins || 0} wheel logs`;
+
+    const badgeEl = document.getElementById('dbTabModeBadge');
+    const textEl = document.getElementById('dbTabStatusText');
+    if (status.mode === 'mongodb' && status.connected) {
+      badgeEl.innerHTML = renderStatusBadge('Open').replace('Open', 'MongoDB');
+      textEl.textContent = 'Connected to MONGODB_URI cluster';
+    } else if (status.mode === 'local-preview') {
+      badgeEl.innerHTML = renderStatusBadge('Waitlisted').replace('Waitlisted', 'Local Preview');
+      textEl.textContent = 'Using local JSON fallback (.data/chess-arena-db.json)';
+    } else {
+      badgeEl.innerHTML = renderStatusBadge('Closed').replace('Closed', 'Error');
+      textEl.textContent = status.error || 'Database connection warning';
+    }
+  }
+
+  async function loadDatabaseSummary() {
+    try {
+      const data = await apiJson('/api/admin/database/summary');
+      applyDatabaseSummary(data);
+    } catch (err) {
+      if (/unauthorized/i.test(err.message)) {
+        ArenaUI.setAdminToken(null);
+        showLoginGate();
+      }
+      throw err;
+    }
+  }
+
+  document.getElementById('refreshDbBtn').addEventListener('click', async () => {
+    try {
+      await loadDatabaseSummary();
+      toast('Database counts refreshed', 'info');
+    } catch (err) {
+      toast(err.message, 'error');
+    }
+  });
+
+  document.getElementById('exportDbBtn').addEventListener('click', async () => {
+    try {
+      const token = ArenaUI.getAdminToken();
+      const res = await fetch('/api/admin/database/export', {
+        credentials: 'same-origin',
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Unable to export backup');
+      }
+      const jsonText = await res.text();
+      const blob = new Blob([jsonText], { type: 'application/json;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `grandmaster-arena-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      toast('JSON backup downloaded', 'success');
+    } catch (err) {
+      toast(err.message, 'error');
+      if (/unauthorized/i.test(err.message)) {
+        ArenaUI.setAdminToken(null);
+        showLoginGate();
+      }
+    }
+  });
+
+  document.getElementById('importBackupFile').addEventListener('change', async (e) => {
+    const file = e.target.files && e.target.files[0];
+    const previewEl = document.getElementById('importPreviewText');
+    const restoreBtn = document.getElementById('restoreDbBtn');
+    pendingBackupSnapshot = null;
+    restoreBtn.disabled = true;
+
+    if (!file) {
+      previewEl.style.display = 'none';
+      return;
+    }
+
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      const cols = parsed && parsed.collections;
+      if (
+        !cols ||
+        !Array.isArray(cols.tournaments) ||
+        !Array.isArray(cols.registrations) ||
+        !Array.isArray(cols.matches)
+      ) {
+        throw new Error('Invalid snapshot structure');
+      }
+      pendingBackupSnapshot = parsed;
+      previewEl.textContent = `Ready: ${cols.tournaments.length} tournaments, ${cols.registrations.length} registrations, ${cols.matches.length} matches`;
+      previewEl.style.display = 'block';
+      restoreBtn.disabled = false;
+    } catch (err) {
+      previewEl.textContent = `Error: ${err.message}`;
+      previewEl.style.display = 'block';
+      toast('Invalid JSON backup file', 'error');
+    }
+  });
+
+  document.getElementById('restoreDbBtn').addEventListener('click', async () => {
+    if (!pendingBackupSnapshot) return;
+    const restoreBtn = document.getElementById('restoreDbBtn');
+    restoreBtn.disabled = true;
+    try {
+      const data = await apiJson('/api/admin/database/import', {
+        method: 'POST',
+        body: JSON.stringify(pendingBackupSnapshot)
+      });
+      applyDatabaseSummary(data);
+      pendingBackupSnapshot = null;
+      document.getElementById('importBackupFile').value = '';
+      document.getElementById('importPreviewText').style.display = 'none';
+      await loadAdminTournaments();
+      await loadAdminRoster();
+      await loadAdminMatches();
+      await loadWheelHistory();
+      toast('Backup snapshot restored', 'success');
+    } catch (err) {
+      restoreBtn.disabled = false;
+      toast(err.message, 'error');
+      if (/unauthorized/i.test(err.message)) {
+        ArenaUI.setAdminToken(null);
+        showLoginGate();
+      }
+    }
+  });
+
+  document.querySelectorAll('[data-purge-scope]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      pendingPurgeScope = btn.dataset.purgeScope;
+      document.getElementById('dbPurgeConfirmMsg').textContent =
+        PURGE_MESSAGES[pendingPurgeScope] || 'Confirm database purge?';
+      document.getElementById('dbPurgeConfirmBox').style.display = 'block';
+    });
+  });
+
+  document.getElementById('cancelPurgeBtn').addEventListener('click', () => {
+    pendingPurgeScope = null;
+    document.getElementById('dbPurgeConfirmBox').style.display = 'none';
+  });
+
+  document.getElementById('confirmPurgeBtn').addEventListener('click', async () => {
+    if (!pendingPurgeScope) return;
+    const confirmBtn = document.getElementById('confirmPurgeBtn');
+    confirmBtn.disabled = true;
+    try {
+      const data = await apiJson('/api/admin/database/purge', {
+        method: 'POST',
+        body: JSON.stringify({ scope: pendingPurgeScope, confirm: true })
+      });
+      applyDatabaseSummary(data);
+      document.getElementById('dbPurgeConfirmBox').style.display = 'none';
+      pendingPurgeScope = null;
+      await loadAdminTournaments();
+      await loadAdminRoster();
+      await loadAdminMatches();
+      await loadWheelHistory();
+      toast('Database purge completed', 'success');
+    } catch (err) {
+      toast(err.message, 'error');
+      if (/unauthorized/i.test(err.message)) {
+        ArenaUI.setAdminToken(null);
+        showLoginGate();
+      }
+    } finally {
+      confirmBtn.disabled = false;
     }
   });
 

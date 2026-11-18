@@ -70,10 +70,6 @@
         <h1 class="section-title" style="font-size:clamp(1.85rem,3vw,2.6rem);">
           Tournament Entry Registration
         </h1>
-        <p class="muted" style="margin:6px 0 0;max-width:66ch;">
-          Select an open tournament below to load its exact rating bounds, custom registration
-          fields, and live confirmed player roster.
-        </p>
       </div>
 
       <div class="layout-sidebar">
@@ -185,8 +181,7 @@
                 style="display:none;padding:12px 14px;border:2px solid var(--status-danger);background:rgba(239,68,68,0.12);border-radius:6px;color:var(--error-text);font-size:0.9rem;"
               ></div>
 
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:6px;">
-                <span class="field-help">Entries are validated against live slot capacity.</span>
+              <div style="display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap;padding-top:6px;">
                 <button id="submitRegBtn" type="submit" class="btn btn-primary">
                   <i data-lucide="send" style="width:16px;height:16px;"></i>
                   <span>Submit Registration</span>
@@ -267,17 +262,6 @@
         </aside>
       </div>
     </main>
-
-    <footer class="site-footer">
-      <div class="container footer-inner">
-        <span>Grandmaster Arena — Player Registration Desk</span>
-        <div style="display:flex;gap:20px;">
-          <a href="/" class="nav-link">Overview</a>
-          <a href="/result" class="nav-link">Standings &amp; Results</a>
-          <a href="/admin" class="nav-link">Organizer Console</a>
-        </div>
-      </div>
-    </footer>
 
     <script src="/vendor/lucide.min.js"></script>
     <script src="/shared.js"></script>

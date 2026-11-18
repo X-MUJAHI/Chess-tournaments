@@ -633,4 +633,54 @@ router.delete('/wheel/history', async (req, res) => {
   }
 });
 
+// ADMIN-ONLY DATABASE MANAGEMENT
+router.get('/database/summary', async (_req, res) => {
+  try {
+    const summary = await db.getDatabaseSummary();
+    return res.json(summary);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/database/export', async (_req, res) => {
+  try {
+    const snapshot = await db.exportDatabaseSnapshot();
+    const stamp = new Date().toISOString().slice(0, 10);
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="grandmaster-arena-backup-${stamp}.json"`);
+    return res.send(JSON.stringify(snapshot, null, 2));
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/database/import', async (req, res) => {
+  try {
+    const snapshot = req.body;
+    const summary = await db.importDatabaseSnapshot(snapshot);
+    return res.json({ ok: true, ...summary });
+  } catch (err) {
+    const isClientError = /invalid backup format/i.test(err.message);
+    return res.status(isClientError ? 400 : 500).json({ error: err.message });
+  }
+});
+
+router.post('/database/purge', async (req, res) => {
+  try {
+    const { scope, confirm } = req.body || {};
+    if (confirm !== true) {
+      return res.status(400).json({ error: 'Explicit confirmation is required before purging data.' });
+    }
+    const validScopes = ['demo', 'wheel', 'matches', 'registrations', 'all'];
+    if (!validScopes.includes(scope)) {
+      return res.status(400).json({ error: 'Invalid purge scope.' });
+    }
+    const summary = await db.purgeDatabaseScope(scope);
+    return res.json({ ok: true, scope, ...summary });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
